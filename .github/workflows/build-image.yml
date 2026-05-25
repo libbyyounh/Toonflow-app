@@ -1,0 +1,51 @@
+name: Build and Push to Tencent Cloud TCR
+
+# 触发条件：当 main 分支有代码 push，或者发布 release 时触发
+on:
+  push:
+    branches: [ "master", "main" ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. 拉取代码
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # 2. 设置 Docker Buildx (用于更高效的构建和缓存管理)
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    # 3. 登录到腾讯云个人镜像仓库
+    - name: Log in to Tencent Cloud Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ secrets.TENCENT_REGISTRY }}
+        username: ${{ secrets.TENCENT_USERNAME }}
+        password: ${{ secrets.TENCENT_PASSWORD }}
+
+    # 4. 生成镜像标签 (使用 Git 的 Short SHA 作为版本号，同时保留 latest 标签)
+    - name: Generate image tags
+      id: meta
+      run: |
+        # 替换下面的 'your-namespace' 和 'toonflow' 为你在腾讯云上的实际空间和仓库名
+        NAMESPACE="${{ vars.NAME_SPACE }}"
+        IMAGE_NAME="toonflow"
+        REGISTRY="${{ secrets.TENCENT_REGISTRY }}"
+        LATEST_TAG="${REGISTRY}/${NAMESPACE}/${IMAGE_NAME}:latest"
+        
+        echo "tags=${LATEST_TAG}" >> $GITHUB_OUTPUT
+
+    # 5. 构建并推送镜像
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        # 启用 GitHub Actions 缓存，大幅加速后续的构建速度
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
