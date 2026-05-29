@@ -14,6 +14,8 @@ import u from "@/utils";
 import jwt from "jsonwebtoken";
 import socketInit from "@/socket/index";
 import { isEletron } from "@/utils/getPath";
+import { bootstrapBundledData } from "@/utils/bootstrapBundledData";
+import { resolveListenPort } from "@/utils/serverConfig";
 
 const app = express();
 const server = http.createServer(app);
@@ -57,6 +59,12 @@ export default async function startServe(randomPort: Boolean = false) {
   app.use(cors({ origin: "*" }));
   app.use(express.json({ limit: "100mb" }));
   app.use(express.urlencoded({ extended: true, limit: "100mb" }));
+
+  const dataDir = u.getPath();
+  const syncedDirectories = bootstrapBundledData(dataDir);
+  if (syncedDirectories.length > 0) {
+    console.log("已同步内置数据目录:", syncedDirectories.join(", "));
+  }
 
   // oss 静态资源
   const ossDir = u.getPath("oss");
@@ -133,7 +141,7 @@ export default async function startServe(randomPort: Boolean = false) {
     res.status(err.status || 500).send(err);
   });
 
-  const port = randomPort ? 0 : 10588;
+  const port = resolveListenPort(Boolean(randomPort));
   return await new Promise((resolve) => {
     server.listen(port, async () => {
       const address = server.address();

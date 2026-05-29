@@ -5,6 +5,8 @@ logs
 uploads
 .git
 .gitignore
+.claude
+cache
 *.md
 LICENSE
 NOTICES.txt
@@ -13,4 +15,6 @@ backup
 env
 docs
 *.log
+*.tar
+build-and-export-image.sh
 .env*

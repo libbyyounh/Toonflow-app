@@ -8,9 +8,16 @@ import initDB from "@/lib/initDB";
 import type { DB } from "@/types/database";
 import crypto from "crypto";
 import fixDB from "@/lib/fixDB";
+import { bootstrapBundledData } from "@/utils/bootstrapBundledData";
 
 type TableName = keyof DB & string;
 type RowType<TName extends TableName> = DB[TName];
+
+const dataDir = getPath();
+const syncedDirectories = bootstrapBundledData(dataDir);
+if (syncedDirectories.length > 0) {
+  console.log("已同步内置数据目录:", syncedDirectories.join(", "));
+}
 
 const dbPath = getPath("db2.sqlite");
 console.log("数据库目录:", dbPath);

@@ -275,15 +275,13 @@ https://github.com/user-attachments/assets/2d9fddac-dfdf-4640-b030-b09d7f7287e9
 git clone https://github.com/HBAI-Ltd/Toonflow-app.git
 cd Toonflow-app
 
-# 使用 docker-compose 本地构建并启动
-yarn docker:local
-
-# 或者手动构建
+# 本地构建并启动（生产模式）
 docker build -t toonflow .
 docker run -d -p <本地端口>:10588 -v <本地数据路径>:/app/data toonflow
 
-# 此时在相应端口的 /web/index.html 路径即可访问页面
-# 例如 http://localhost:10588/web/index.html
+# 首次启动会自动将镜像内置的前端、skills、vendor 和模型配置同步到挂载的数据目录
+# 此时可直接访问首页
+# 例如 http://localhost:10588/
 ```
 
 ### 服务端口说明
@@ -299,6 +297,8 @@ docker run -d -p <本地端口>:10588 -v <本地数据路径>:/app/data toonflow
 | `NODE_ENV` | 运行环境，`prod` 表示生产环境      |
 | `PORT`     | 服务监听端口（默认 10588）         |
 | `OSSURL`   | 文件存储访问地址，用于静态资源访问 |
+
+> 如需修改容器监听端口，可同时调整容器内外端口，例如：`docker run -d -p 18080:18080 -e PORT=18080 -e OSSURL=http://<你的域名或IP>:18080 -v <本地数据路径>:/app/data toonflow`
 
 ---
 
