@@ -3,7 +3,6 @@ import u from "@/utils";
 import { z } from "zod";
 import { success } from "@/lib/responseFormat";
 import { validateFields } from "@/middleware/middleware";
-import { fillMissingGeneratedPrompts } from "./imageFlowPromptFallback";
 const router = express.Router();
 
 export default router.post(
@@ -15,14 +14,7 @@ export default router.post(
     const { id, type } = req.body;
     const imageFlowData = await u.db("o_imageFlow").where("id", id).first();
     if (imageFlowData?.flowData) {
-      let fallbackPrompt = "";
-      const [assetRecord, storyboardRecord] = await Promise.all([
-        u.db("o_assets").where("flowId", id).select("prompt").first(),
-        u.db("o_storyboard").where("flowId", id).select("prompt").first(),
-      ]);
-      fallbackPrompt = assetRecord?.prompt ?? storyboardRecord?.prompt ?? "";
-
-      const parseFlow = fillMissingGeneratedPrompts(JSON.parse(imageFlowData.flowData), fallbackPrompt);
+      const parseFlow = JSON.parse(imageFlowData.flowData);
       await Promise.all(
         parseFlow.nodes.map(async (node: any) => {
           if (node.type === "upload") {
