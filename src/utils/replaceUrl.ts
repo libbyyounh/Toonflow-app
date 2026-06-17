@@ -25,11 +25,6 @@ export default function replaceUrl(url: string): string {
     // 使用 posix 规范化（保持 / 分隔符），去除所有 .. 和 .
     const normalized = path.posix.normalize(cleanedPath);
 
-    // 规范化后若路径以 ../ 开头或等于 .. 则说明发生了路径穿越，拒绝并返回空字符串
-    if (normalized.startsWith('../') || normalized === '..') {
-        return '';
-    }
-
-    // 去除前导斜杠，保证返回的是相对路径
-    return normalized.replace(/^\/+/, '');
+  // 去除前导斜杠，保证返回的是相对路径
+  return normalized.replace(/^\/+/, "");
 }
