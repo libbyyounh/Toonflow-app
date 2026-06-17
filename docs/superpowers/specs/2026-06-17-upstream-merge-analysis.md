@@ -945,3 +945,93 @@ git checkout upstream/master -- src/utils/image.ts
 - 移除了一些测试文件
 
 **建议**: 如果你没有紧急需求，可以先在 dev 分支测试合并，验证无误后再合并到 master。
+
+---
+
+## 8. 合并执行记录
+
+**执行时间**: 2026-06-17
+**执行分支**: dev
+**合并提交**: b154b0c
+
+### 8.1 冲突解决结果
+
+| 文件 | 冲突类型 | 解决方式 | 保留内容 |
+|------|----------|----------|----------|
+| README.md | Docker 说明 | 保留用户版本 | bundled-data 同步说明 |
+| data/web/index.html | 前端代码 | 保留用户版本 | baseUrl 修复逻辑 |
+| src/app.ts | 导入和逻辑 | 合并两者 | bundled-data + 缩略图功能 |
+| src/utils/replaceUrl.ts | 路径处理 | 保留用户版本 | 更完善的前缀处理 |
+
+### 8.2 保留的用户修改
+
+✅ **Docker 构建**
+- Dockerfile 多阶段构建（生产模式）
+- build-image.yml（腾讯云 TCR 推送）
+- bundled-data 同步机制
+
+✅ **Bug 修复**
+- index.html baseUrl 修复
+- replaceUrl.ts 路径处理优化
+- oss.ts buildPublicFileUrl 函数
+
+✅ **新增功能**
+- bootstrapBundledData.ts（数据同步）
+- serverConfig.ts（端口配置）
+- 相关测试文件
+
+### 8.3 获得的上游更新
+
+✅ **新增供应商**
+- volcengineSd2.ts（火山引擎 SD2）
+- deepseek.ts v2.1（OpenAI 兼容）
+- grsai.ts v2.2
+- toonflow.ts 更新
+- volcengine.ts 更新
+
+✅ **新增功能**
+- src/utils/image.ts（动态缩略图）
+- checkVideoPrompt.ts（视频提示词检查）
+- updateAgentModel.ts（Agent 单个更新）
+
+✅ **优化改进**
+- AI 工作流简化（阶段1免审核）
+- Agent 批量配置接口
+- 代码格式化统一
+- 文档和图标更新
+
+### 8.4 验证清单
+
+- [x] 冲突已解决
+- [x] Dockerfile 保留多阶段构建
+- [x] build-image.yml 保留
+- [x] bundled-data 机制保留
+- [x] 缩略图功能已集成
+- [x] 新供应商已添加
+- [ ] 服务器启动测试（待验证）
+- [ ] Docker 构建测试（待验证）
+- [ ] 功能测试（待验证）
+
+### 8.5 后续建议
+
+1. **测试服务器启动**
+   ```bash
+   yarn dev
+   ```
+
+2. **测试 Docker 构建**
+   ```bash
+   docker build -t toonflow .
+   docker run -p 10588:10588 toonflow
+   ```
+
+3. **测试新功能**
+   - 火山引擎 SD2 供应商配置
+   - 动态缩略图：`/oss/images/test.jpg?size=200x300`
+   - Agent 批量配置接口
+
+4. **合并到 master**
+   ```bash
+   git checkout master
+   git merge dev
+   ```
